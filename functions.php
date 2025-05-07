@@ -2,7 +2,7 @@
 if( WP_DEBUG && WP_DEBUG_DISPLAY && (defined('DOING_AJAX') && DOING_AJAX) ){
 	@ ini_set( 'display_errors', 1 );
 }
-//WP_THEME_SquarePUNguin
+
 if(! function_exists("WP_THEME_SquarePUNguin_theme_setup")){
 	function WP_THEME_SquarePUNguin_theme_setup(){
 		add_theme_support('custom-logo', [

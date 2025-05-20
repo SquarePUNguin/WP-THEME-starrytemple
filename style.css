@@ -294,6 +294,7 @@ Use it to make something cool, have fun, and share what you've learned with othe
 
     .form-submit input[type='submit']{
         background: none;
+        color:white;
     }
 
     @media (max-width:1000px) {

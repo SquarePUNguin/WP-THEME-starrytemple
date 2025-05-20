@@ -124,7 +124,6 @@ Use it to make something cool, have fun, and share what you've learned with othe
     .main.proportionized>:nth-child(2) {
         display: grid;
         grid-template-columns: 1fr;
-        grid-template-rows: 0.5fr 8fr;
     }
 
     .main p {

@@ -97,7 +97,8 @@
                 padding-left: 2vw;
                 padding-right:1.5vw;
                 border-bottom-left-radius:  25px;
-                border-bottom-right-radius: 25px;
+		border-bottom-right-radius: 25px;
+		scrollbar-width:none;
             }
             .linnavbar ul{
                 margin:0px;
@@ -107,7 +108,7 @@
                 padding:0px;
                 padding-top: 1vh;
                 padding-bottom:1vh;
-
+		scrollbar-width:none;
             }
             .linnavbar :visited{
                 color:white;

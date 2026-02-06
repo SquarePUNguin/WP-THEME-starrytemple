@@ -156,6 +156,7 @@ Use it to make something cool, have fun, and share what you've learned with othe
     border-bottom-right-radius: var(--brr);
     border-bottom-left-radius: var(--brr);
     min-height: 30vh;
+    align-items: center;
   }
 
   .main>:nth-child(2)>:nth-child(2) {

@@ -96,6 +96,7 @@ Use it to make something cool, have fun, and share what you've learned with othe
     min-height: 100vh;
     position: fixed;
     z-index: -1;
+    pointer-events: none;
   }
 
   header {

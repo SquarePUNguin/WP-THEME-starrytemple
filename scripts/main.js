@@ -4,6 +4,9 @@ function RNG(min, max) {
 
 jQuery(function ($) {
     BG()
+    let controller = new AbortController();
+    let { signal } = controller;
+    let searchTimeout;
     //drop menue code
     function killsubnavbar() {
         $(".subnavbar").slideUp();
@@ -50,6 +53,11 @@ jQuery(function ($) {
         svg.setAttribute("height", h); svg.setAttribute("width", w)
         if (!$("body").hasClass("error")) {
             for (i = 0; i < w; i++) {
+
+        if(i>800){//hardlimit in case of HIGH res device
+          break;
+        }
+
                 let cx = RNG(0, w);
                 let cy = RNG(0, h);
                 let r = RNG(1, 2);
@@ -70,7 +78,7 @@ jQuery(function ($) {
                 circle2.setAttribute("cy", cy);
                 svg.append(circle2);
                 svg.append(circle);
-            }
+      }
         } else {
             svg.setAttribute("viewbox", "0 0 100 100");
             svg.setAttribute("preserveAspectRatio","xMinYMin meet")
@@ -79,7 +87,7 @@ jQuery(function ($) {
             svg.innerHTML += `<text x=15 y="35" fill="#ff7700">404</text>`;
             //svg.innerHTML+=`<circle class="cloud" fill="#c4ccff"  />`
         }
-        $("body")[0].innerHTML = svg.outerHTML+$("body")[0].innerHTML;
+        $("body").prepend(svg.outerHTML);
     }
     let rerenderT;//sadly have to rerender Background :( tho not every frame of resize event but still no good
     $(window).on("resize", function () {
@@ -87,42 +95,79 @@ jQuery(function ($) {
         rerenderT = setTimeout(BG(), 2000);
     })
     try {
+    let Loading=false;
+        
         let viewbox = new IntersectionObserver((entries) => {
-            if (entries[0].intersectionRatio > 0) {
-                let offset = $(".result").children().length + 1;
-                $.post(myajaxery.url, {
+            if (entries[0].intersectionRatio > 0.5 && !Loading) {
+                let offset = $(".result").children().length;
+                Loading=true
+                $.post({
+                  url:myajaxery.url, 
+                  data:{
                     action: "search",
                     offset: offset,
                     search: $("input[name='search']").val(),
-                    quantity: null
-                }, function (res) {
+                    quantity: 10
+                }, 
+                success:function (res) {
                     if (res != "") {
                         if (res != "END") {
-                            $(".result").attr("num", $(".result").children().length + 1);
                             $(".result").append(res);
-                        } else { viewbox.disconnect() }
+                            viewbox.unobserve(entries[0].target)
+                            viewbox.observe($(observerSelector)[0])
+                            $(".result").attr("num", $(".result").children().length);
+                        } else { viewbox.unobserve(entries[0].target) }
     
                     }
+                Loading=false;
+                },
+                error: function() { Loading = false; },
+                xhr:function(){
+                  let xhr = new window.XMLHttpRequest();
+                  signal.addEventListener('abort',()=>xhr.abort())
+                  return xhr;
+                }
                 })
             }
         })
-
+        let observerSelector=".result>:last-child:not(.unfound)"
         $("input[name='search']").on("input", function () {
-            $.post(myajaxery.url, {
+        Loading=true;
+        controller.abort()
+        controller = new AbortController();
+        signal = controller.signal;
+        let searchSTR=$(this).val();
+        clearTimeout(searchTimeout)
+        searchTimeout=setTimeout(function(){
+            $.post(
+          {
+            url:myajaxery.url, 
+            data:{
                 action: "search",
                 offset: 0,
-                search: $(this).val(),
-                quantity: null
-            }, function (res) {
+                search: searchSTR,
+                quantity: 10
+            },
+            success: function (res) {
                 if (res == "") {
                     res = `<div class="unfound">
                             <h1>NO POSTS FOUND</h1>
-                            </div>`} else { }
-                $(".result>*").remove();
-                $(".result").append(res);
-                viewbox.observe($(".result>:last-child")[0])
-            })
+                            </div>`} else {}
+              $(".result>*").remove();
+              $(".result").append(res);
+              viewbox.observe($(observerSelector)[0])
+              setTimeout(()=>{Loading=false},100);
+                
+            },
+            error: function() { Loading = false; },
+            xhr:function(){
+              let xhr = new window.XMLHttpRequest();
+              signal.addEventListener('abort',()=>xhr.abort())
+              return xhr;
+            }
         })
-        viewbox.observe($(".result>:last-child")[0])
-    } catch (e) { }
+        },400)
+        })
+        let last = $(observerSelector); if(last.length) viewbox.observe($(observerSelector)[0]);
+        } catch (e) { }
 });

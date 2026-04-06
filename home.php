@@ -9,6 +9,7 @@
 </head>
 
 <body>
+  <?php wp_body_open(); ?>
   <div>
     <?php get_header(); ?>
     <div class="main proportionized">
